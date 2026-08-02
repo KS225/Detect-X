@@ -1,0 +1,90 @@
+# ==========================================================
+# DetectX AI - Root .gitignore
+# ==========================================================
+
+# ==========================================================
+# Python
+# ==========================================================
+
+# Virtual Environment
+backend/venv/
+backend/.venv/
+
+# Environment Variables
+backend/.env
+.env
+.env.*
+
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Python Tool Caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Coverage Reports
+.coverage
+htmlcov/
+
+# Local Databases
+*.db
+*.sqlite3
+
+# ==========================================================
+# React / Node
+# ==========================================================
+
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+*.log
+
+# ==========================================================
+# IDE
+# ==========================================================
+
+.vscode/
+.idea/
+
+# ==========================================================
+# Operating System
+# ==========================================================
+
+.DS_Store
+Thumbs.db
+
+# ==========================================================
+# Git
+# ==========================================================
+
+*.orig
+*.rej
+
+# ==========================================================
+# Temporary Files
+# ==========================================================
+
+*.tmp
+*.temp
+
+# Generated Reports
+backend/reports/
+
+# Uploaded Files
+backend/uploads/
+
+# AI Cache
+backend/cache/
+
+# Scan Results
+backend/scan_results/
