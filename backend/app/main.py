@@ -19,8 +19,6 @@ initialize_database()
 
 app.include_router(auth_router)
 app.include_router(website_router)
-app.include_router(auth_router)
-app.include_router(website_router)
 app.include_router(scanner_router)
 
 

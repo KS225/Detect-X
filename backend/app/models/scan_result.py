@@ -20,6 +20,10 @@ class ScanResult(Base):
         nullable=False,
     )
 
+    # -----------------------------
+    # OWASP ZAP Data
+    # -----------------------------
+
     name: Mapped[str] = mapped_column(
         String(255),
         nullable=False,
@@ -30,42 +34,42 @@ class ScanResult(Base):
         nullable=False,
     )
 
-    confidence: Mapped[str] = mapped_column(
+    confidence: Mapped[str | None] = mapped_column(
         String(50),
         nullable=True,
     )
 
-    description: Mapped[str] = mapped_column(
+    description: Mapped[str | None] = mapped_column(
         Text,
         nullable=True,
     )
 
-    solution: Mapped[str] = mapped_column(
+    solution: Mapped[str | None] = mapped_column(
         Text,
         nullable=True,
     )
 
-    reference: Mapped[str] = mapped_column(
+    reference: Mapped[str | None] = mapped_column(
         Text,
         nullable=True,
     )
 
-    url: Mapped[str] = mapped_column(
+    url: Mapped[str | None] = mapped_column(
         Text,
         nullable=True,
     )
 
-    param: Mapped[str] = mapped_column(
+    param: Mapped[str | None] = mapped_column(
         String(255),
         nullable=True,
     )
 
-    attack: Mapped[str] = mapped_column(
+    attack: Mapped[str | None] = mapped_column(
         Text,
         nullable=True,
     )
 
-    evidence: Mapped[str] = mapped_column(
+    evidence: Mapped[str | None] = mapped_column(
         Text,
         nullable=True,
     )
@@ -80,10 +84,57 @@ class ScanResult(Base):
         nullable=True,
     )
 
+    # -----------------------------
+    # AI Generated Fields
+    # -----------------------------
+
+    ai_explanation: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
+
+    business_impact: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
+
+    technical_impact: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
+
+    remediation_steps: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
+
+    secure_coding_tip: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
+
+    priority: Mapped[str | None] = mapped_column(
+        String(30),
+        nullable=True,
+    )
+
+    estimated_fix_time: Mapped[str | None] = mapped_column(
+        String(100),
+        nullable=True,
+    )
+
+    # -----------------------------
+    # Timestamp
+    # -----------------------------
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
         default=datetime.utcnow,
     )
+
+    # -----------------------------
+    # Relationship
+    # -----------------------------
 
     scan = relationship(
         "Scan",
