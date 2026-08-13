@@ -43,6 +43,8 @@ class FullScanService:
             user_id=website.user_id,
             website_id=website.id,
             status="Running",
+            progress=0,
+            scan_stage="Initializing",
         )
 
         db.add(scan)
@@ -220,6 +222,41 @@ class FullScanService:
                 )
 
     # ========================================================
+    # UPDATE SCAN PROGRESS
+    # ========================================================
+
+    @staticmethod
+    def _update_progress(
+        db: Session,
+        scan: Scan,
+        progress: int,
+        stage: str,
+    ):
+        """
+        Update scan progress in the database so the frontend
+        can retrieve the latest progress through GET /scanner/{id}.
+        """
+
+        # Keep progress safely between 0 and 100
+        progress = max(
+            0,
+            min(
+                progress,
+                100,
+            ),
+        )
+
+        scan.progress = progress
+        scan.scan_stage = stage
+
+        db.commit()
+
+        print(
+            f"[SCAN {scan.id}] "
+            f"{stage} - {progress}%"
+        )
+
+    # ========================================================
     # CLEANUP
     # ========================================================
 
@@ -277,6 +314,17 @@ class FullScanService:
                 )
 
             # =================================================
+            # Initial Progress
+            # =================================================
+
+            FullScanService._update_progress(
+                db,
+                scan,
+                0,
+                "Initializing",
+            )
+
+            # =================================================
             # Clean URL
             # =================================================
 
@@ -314,6 +362,13 @@ class FullScanService:
             # Connect to ZAP
             # =================================================
 
+            FullScanService._update_progress(
+                db,
+                scan,
+                5,
+                "Connecting to ZAP",
+            )
+
             print(
                 "\nConnecting to OWASP ZAP..."
             )
@@ -335,6 +390,13 @@ class FullScanService:
             # Fresh Session
             # =================================================
 
+            FullScanService._update_progress(
+                db,
+                scan,
+                8,
+                "Creating ZAP Session",
+            )
+
             print(
                 "\nCreating Fresh ZAP Session..."
             )
@@ -355,6 +417,13 @@ class FullScanService:
             # =================================================
             # Open Website
             # =================================================
+
+            FullScanService._update_progress(
+                db,
+                scan,
+                10,
+                "Opening Website",
+            )
 
             print(
                 f"\nOpening {url}"
@@ -382,6 +451,13 @@ class FullScanService:
                 "\nStarting Spider..."
             )
 
+            FullScanService._update_progress(
+                db,
+                scan,
+                10,
+                "Spider",
+            )
+
             spider_id = zap.spider.scan(
                 url
             )
@@ -401,15 +477,25 @@ class FullScanService:
                     scan.id
                 )
 
-                progress = int(
+                spider_progress = int(
                     zap.spider.status(
                         spider_id
                     )
                 )
 
-                print(
-                    f"Spider Progress: "
-                    f"{progress}%"
+                # Spider gets 10% -> 40%
+                overall_progress = (
+                    10
+                    + int(
+                        spider_progress * 0.30
+                    )
+                )
+
+                FullScanService._update_progress(
+                    db,
+                    scan,
+                    overall_progress,
+                    "Spider",
                 )
 
                 time.sleep(2)
@@ -418,11 +504,16 @@ class FullScanService:
                 "Spider Completed"
             )
 
+            FullScanService._update_progress(
+                db,
+                scan,
+                40,
+                "Spider Completed",
+            )
+
             # =================================================
             # Passive Scanner
             # =================================================
-
-            time.sleep(5)
 
             FullScanService._check_stop(
                 scan.id
@@ -452,12 +543,15 @@ class FullScanService:
                 zap.core.sites
             )
 
-            # =================================================
-            # Passive Scan
-            # =================================================
-
             print(
                 "\nWaiting for Passive Scan..."
+            )
+
+            FullScanService._update_progress(
+                db,
+                scan,
+                42,
+                "Passive Scan",
             )
 
             while int(
@@ -483,6 +577,13 @@ class FullScanService:
                 "Passive Scan Completed"
             )
 
+            FullScanService._update_progress(
+                db,
+                scan,
+                50,
+                "Passive Scan Completed",
+            )
+
             # =================================================
             # Active Scan
             # =================================================
@@ -493,6 +594,13 @@ class FullScanService:
 
             print(
                 "\nStarting Active Scan..."
+            )
+
+            FullScanService._update_progress(
+                db,
+                scan,
+                50,
+                "Active Scan",
             )
 
             active_scan_id = zap.ascan.scan(
@@ -516,21 +624,38 @@ class FullScanService:
                     scan.id
                 )
 
-                progress = int(
+                active_progress = int(
                     zap.ascan.status(
                         active_scan_id
                     )
                 )
 
-                print(
-                    f"Active Scan: "
-                    f"{progress}%"
+                # Active scan gets 50% -> 90%
+                overall_progress = (
+                    50
+                    + int(
+                        active_progress * 0.40
+                    )
+                )
+
+                FullScanService._update_progress(
+                    db,
+                    scan,
+                    overall_progress,
+                    "Active Scan",
                 )
 
                 time.sleep(3)
 
             print(
                 "Active Scan Completed"
+            )
+
+            FullScanService._update_progress(
+                db,
+                scan,
+                90,
+                "Active Scan Completed",
             )
 
             # =================================================
@@ -548,6 +673,17 @@ class FullScanService:
             # =================================================
             # Fetch Alerts
             # =================================================
+
+            FullScanService._check_stop(
+                scan.id
+            )
+
+            FullScanService._update_progress(
+                db,
+                scan,
+                92,
+                "Fetching Alerts",
+            )
 
             print(
                 "\nFetching Alerts..."
@@ -597,10 +733,25 @@ class FullScanService:
             info = 0
 
             # =================================================
+            # Gemini Analysis
+            # =================================================
+
+            total_alerts = len(alerts)
+
+            if total_alerts == 0:
+
+                FullScanService._update_progress(
+                    db,
+                    scan,
+                    95,
+                    "No Vulnerabilities Found",
+                )
+
+            # =================================================
             # Save Scan Results
             # =================================================
 
-            for alert in alerts:
+            for index, alert in enumerate(alerts):
 
                 FullScanService._check_stop(
                     scan.id
@@ -635,6 +786,27 @@ class FullScanService:
                     f"\nGenerating AI explanation for: "
                     f"{alert.get('alert')}"
                 )
+
+                # Gemini stage: 92 -> 99
+                if total_alerts > 0:
+
+                    ai_progress = (
+                        92
+                        + int(
+                            (
+                                (index + 1)
+                                / total_alerts
+                            )
+                            * 7
+                        )
+                    )
+
+                    FullScanService._update_progress(
+                        db,
+                        scan,
+                        ai_progress,
+                        "Gemini Analysis",
+                    )
 
                 try:
 
@@ -829,6 +1001,8 @@ class FullScanService:
                     result
                 )
 
+                db.commit()
+
             # =================================================
             # Final Stop Check
             # =================================================
@@ -840,6 +1014,13 @@ class FullScanService:
             # =================================================
             # Security Score
             # =================================================
+
+            FullScanService._update_progress(
+                db,
+                scan,
+                99,
+                "Calculating Security Score",
+            )
 
             score = 100
 
@@ -856,6 +1037,10 @@ class FullScanService:
             # =================================================
 
             scan.status = "Completed"
+
+            scan.progress = 100
+
+            scan.scan_stage = "Completed"
 
             scan.security_score = score
 
@@ -901,6 +1086,8 @@ class FullScanService:
                 "scan_id": scan.id,
                 "website": website.url,
                 "status": scan.status,
+                "progress": scan.progress,
+                "scan_stage": scan.scan_stage,
                 "security_score": scan.security_score,
                 "total_alerts": scan.total_alerts,
                 "high": scan.high_count,
@@ -924,6 +1111,8 @@ class FullScanService:
 
             scan.status = "Stopped"
 
+            scan.scan_stage = "Stopped"
+
             scan.completed_at = (
                 datetime.utcnow()
             )
@@ -938,6 +1127,8 @@ class FullScanService:
                 "scan_id": scan.id,
                 "website": website.url,
                 "status": "Stopped",
+                "progress": scan.progress,
+                "scan_stage": scan.scan_stage,
                 "security_score": (
                     scan.security_score or 0
                 ),
@@ -977,6 +1168,8 @@ class FullScanService:
             if scan:
 
                 scan.status = "Failed"
+
+                scan.scan_stage = "Failed"
 
                 scan.completed_at = (
                     datetime.utcnow()

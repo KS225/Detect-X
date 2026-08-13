@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class ScanResultResponse(BaseModel):
@@ -11,6 +11,7 @@ class ScanResultResponse(BaseModel):
     # -----------------------------
     # OWASP ZAP Data
     # -----------------------------
+
     name: str
     risk: str
 
@@ -30,6 +31,7 @@ class ScanResultResponse(BaseModel):
     # -----------------------------
     # Gemini AI Data
     # -----------------------------
+
     ai_explanation: str | None = None
     business_impact: str | None = None
     technical_impact: str | None = None
@@ -55,11 +57,8 @@ class ScanHistoryResponse(BaseModel):
     total_alerts: int
 
     high: int
-
     medium: int
-
     low: int
-
     info: int
 
     status: str
@@ -76,6 +75,23 @@ class ScanDetailResponse(BaseModel):
 
     website: str
 
+    # -----------------------------
+    # Scan Progress
+    # -----------------------------
+
+    status: str
+
+    progress: int = Field(
+        ge=0,
+        le=100,
+    )
+
+    scan_stage: str
+
+    # -----------------------------
+    # Security Summary
+    # -----------------------------
+
     security_score: int
 
     total_alerts: int
@@ -85,9 +101,16 @@ class ScanDetailResponse(BaseModel):
     low: int
     info: int
 
-    status: str
+    # -----------------------------
+    # Timestamps
+    # -----------------------------
 
     created_at: datetime
+
     completed_at: datetime | None = None
+
+    # -----------------------------
+    # Vulnerability Results
+    # -----------------------------
 
     results: list[ScanResultResponse] = []

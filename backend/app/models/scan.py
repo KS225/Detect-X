@@ -25,10 +25,28 @@ class Scan(Base):
         nullable=False,
     )
 
+    # -----------------------------
+    # Scan Status
+    # -----------------------------
+
     status: Mapped[str] = mapped_column(
         String(20),
         default="Running",
     )
+
+    progress: Mapped[int] = mapped_column(
+        Integer,
+        default=0,
+    )
+
+    scan_stage: Mapped[str] = mapped_column(
+        String(50),
+        default="Initializing",
+    )
+
+    # -----------------------------
+    # Security Results
+    # -----------------------------
 
     security_score: Mapped[int] = mapped_column(
         Integer,
@@ -60,6 +78,10 @@ class Scan(Base):
         default=0,
     )
 
+    # -----------------------------
+    # Timestamps
+    # -----------------------------
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
         default=datetime.utcnow,
@@ -69,6 +91,11 @@ class Scan(Base):
         DateTime,
         nullable=True,
     )
+
+    # -----------------------------
+    # Relationships
+    # -----------------------------
+
     user = relationship(
         "User",
         back_populates="scans",

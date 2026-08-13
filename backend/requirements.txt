@@ -26,8 +26,8 @@ requests==2.34.2
 httpx
 
 # ---------- AI ----------
-openai
-tiktoken
+gemini 
+
 
 # ---------- OWASP ZAP ----------
 python-owasp-zap-v2.4
