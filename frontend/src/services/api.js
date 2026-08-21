@@ -127,7 +127,8 @@ export async function getCurrentUser() {
 
   if (!response.ok) {
     throw new Error(
-      data.detail || "Failed to get current user."
+      data.detail ||
+      "Failed to get current user."
     );
   }
 
@@ -157,7 +158,46 @@ export async function getWebsites() {
 
   if (!response.ok) {
     throw new Error(
-      data.detail || "Failed to fetch websites."
+      data.detail ||
+      "Failed to fetch websites."
+    );
+  }
+
+  return data;
+}
+
+/**
+ * Create a new website.
+ */
+export async function createWebsite(
+  name,
+  url,
+  description = ""
+) {
+  const response = await fetch(
+    `${API_BASE_URL}/websites`,
+    {
+      method: "POST",
+
+      headers: getAuthHeaders(),
+
+      body: JSON.stringify({
+        name,
+        url,
+        description,
+      }),
+    }
+  );
+
+  const data =
+    await response
+      .json()
+      .catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(
+      data.detail ||
+      "Failed to create website."
     );
   }
 
@@ -180,7 +220,8 @@ export async function startScan(websiteId) {
 
   if (!response.ok) {
     throw new Error(
-      data.detail || "Failed to start scan."
+      data.detail ||
+      "Failed to start scan."
     );
   }
 
@@ -203,7 +244,8 @@ export async function getScan(scanId) {
 
   if (!response.ok) {
     throw new Error(
-      data.detail || "Failed to fetch scan."
+      data.detail ||
+      "Failed to fetch scan."
     );
   }
 
@@ -226,7 +268,8 @@ export async function stopScan(scanId) {
 
   if (!response.ok) {
     throw new Error(
-      data.detail || "Failed to stop scan."
+      data.detail ||
+      "Failed to stop scan."
     );
   }
 
@@ -249,7 +292,8 @@ export async function getScanHistory() {
 
   if (!response.ok) {
     throw new Error(
-      data.detail || "Failed to fetch scan history."
+      data.detail ||
+      "Failed to fetch scan history."
     );
   }
 

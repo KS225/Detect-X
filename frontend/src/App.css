@@ -1510,3 +1510,181 @@ button {
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+/* ============================================================
+   ADD WEBSITE MODAL
+   ============================================================ */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(0, 0, 0, 0.7);
+}
+
+
+/* ============================================================
+   MODAL CARD
+   ============================================================ */
+
+.modal-card {
+  width: 100%;
+  max-width: 500px;
+
+  padding: 28px;
+
+  border: 1px solid #1e293b;
+  border-radius: 14px;
+
+  background: #0f1720;
+
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+
+/* ============================================================
+   MODAL HEADER
+   ============================================================ */
+
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  margin-bottom: 24px;
+}
+
+.modal-header h3 {
+  margin: 5px 0;
+
+  font-size: 22px;
+}
+
+.modal-header p:not(.eyebrow) {
+  margin: 0;
+
+  font-size: 13px;
+
+  color: #94a3b8;
+}
+
+
+/* ============================================================
+   CLOSE BUTTON
+   ============================================================ */
+
+.modal-close {
+  width: 32px;
+  height: 32px;
+
+  border: none;
+  border-radius: 6px;
+
+  background: transparent;
+
+  color: #94a3b8;
+
+  font-size: 24px;
+
+  cursor: pointer;
+}
+
+.modal-close:hover {
+  background: #1e293b;
+  color: white;
+}
+
+
+/* ============================================================
+   FORM
+   ============================================================ */
+
+.modal-card .form-group {
+  display: flex;
+  flex-direction: column;
+
+  gap: 7px;
+
+  margin-bottom: 18px;
+}
+
+.modal-card .form-group label {
+  font-size: 13px;
+  font-weight: 600;
+
+  color: #cbd5e1;
+}
+
+.modal-card input,
+.modal-card textarea {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  padding: 11px 13px;
+
+  border: 1px solid #334155;
+  border-radius: 7px;
+
+  background: #111827;
+
+  color: #f8fafc;
+
+  font-family: inherit;
+  font-size: 13px;
+
+  outline: none;
+}
+
+.modal-card input:focus,
+.modal-card textarea:focus {
+  border-color: #2563eb;
+}
+
+.modal-card textarea {
+  resize: vertical;
+}
+
+
+/* ============================================================
+   ERROR
+   ============================================================ */
+
+.website-form-error {
+  margin-bottom: 18px;
+
+  padding: 10px 12px;
+
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 7px;
+
+  background: rgba(239, 68, 68, 0.08);
+
+  color: #fca5a5;
+
+  font-size: 12px;
+}
+
+
+/* ============================================================
+   ACTIONS
+   ============================================================ */
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  margin-top: 24px;
+}

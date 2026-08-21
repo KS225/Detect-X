@@ -10,12 +10,12 @@ import {
   getCurrentUser,
   getToken,
   getWebsites,
+  createWebsite,
   startScan,
   getScan,
   stopScan,
   getScanHistory,
 } from "./services/api";
-
 
 function App() {
 
@@ -36,10 +36,31 @@ function App() {
   // ============================================================
   // DASHBOARD DATA
   // ============================================================
-
   const [websites, setWebsites] = useState([]);
 
   const [scanHistory, setScanHistory] = useState([]);
+
+  // ============================================================
+  // ADD WEBSITE
+  // ============================================================
+
+  const [showAddWebsite, setShowAddWebsite] =
+    useState(false);
+
+  const [websiteName, setWebsiteName] =
+    useState("");
+
+  const [websiteUrl, setWebsiteUrl] =
+    useState("");
+
+  const [websiteDescription, setWebsiteDescription] =
+    useState("");
+
+  const [creatingWebsite, setCreatingWebsite] =
+    useState(false);
+
+  const [websiteError, setWebsiteError] =
+    useState("");
 
   const [loading, setLoading] = useState(
     Boolean(getToken())
@@ -376,6 +397,115 @@ function App() {
 
   }
 
+  // ============================================================
+  // CREATE WEBSITE
+  // ============================================================
+
+  async function handleCreateWebsite(event) {
+
+    event.preventDefault();
+
+    setWebsiteError("");
+
+
+    // ----------------------------------------------------------
+    // Validate website name
+    // ----------------------------------------------------------
+
+    if (!websiteName.trim()) {
+
+      setWebsiteError(
+        "Please enter a website name."
+      );
+
+      return;
+    }
+
+
+    // ----------------------------------------------------------
+    // Validate website URL
+    // ----------------------------------------------------------
+
+    if (!websiteUrl.trim()) {
+
+      setWebsiteError(
+        "Please enter a website URL."
+      );
+
+      return;
+    }
+
+
+    try {
+
+      setCreatingWebsite(true);
+
+
+      // --------------------------------------------------------
+      // Send website to backend
+      // --------------------------------------------------------
+
+      const newWebsite =
+        await createWebsite(
+          websiteName.trim(),
+          websiteUrl.trim(),
+          websiteDescription.trim()
+        );
+
+
+      console.log(
+        "Website created successfully:",
+        newWebsite
+      );
+
+
+      // --------------------------------------------------------
+      // Add website to current UI
+      // --------------------------------------------------------
+
+      setWebsites((previous) => [
+        ...previous,
+        newWebsite,
+      ]);
+
+
+      // --------------------------------------------------------
+      // Clear form
+      // --------------------------------------------------------
+
+      setWebsiteName("");
+      setWebsiteUrl("");
+      setWebsiteDescription("");
+
+
+      // --------------------------------------------------------
+      // Close modal
+      // --------------------------------------------------------
+
+      setShowAddWebsite(false);
+
+      setWebsiteError("");
+
+
+    } catch (err) {
+
+      console.error(
+        "Failed to create website:",
+        err
+      );
+
+      setWebsiteError(
+        err.message ||
+        "Failed to create website."
+      );
+
+    } finally {
+
+      setCreatingWebsite(false);
+
+    }
+
+  }
 
   // ============================================================
   // START SCAN
@@ -778,7 +908,174 @@ function App() {
 
       <main className="dashboard">
 
+        {/* ========================================================
+    ADD WEBSITE MODAL
+======================================================== */}
 
+        {showAddWebsite && (
+
+          <div className="modal-overlay">
+
+            <div className="modal-card">
+
+              <div className="modal-header">
+
+                <div>
+
+                  <p className="eyebrow">
+                    WEBSITE SETUP
+                  </p>
+
+                  <h3>
+                    Add Website
+                  </h3>
+
+                  <p>
+                    Add a website to begin a security assessment.
+                  </p>
+
+                </div>
+
+
+                <button
+                  type="button"
+                  className="modal-close"
+                  onClick={() => {
+                    setShowAddWebsite(false);
+                    setWebsiteError("");
+                  }}
+                >
+                  ×
+                </button>
+
+              </div>
+
+
+              <form onSubmit={handleCreateWebsite}>
+
+                {/* WEBSITE NAME */}
+
+                <div className="form-group">
+
+                  <label htmlFor="website-name">
+                    Website Name
+                  </label>
+
+                  <input
+                    id="website-name"
+                    type="text"
+                    placeholder="My Website"
+                    value={websiteName}
+                    onChange={(event) =>
+                      setWebsiteName(
+                        event.target.value
+                      )
+                    }
+                    disabled={creatingWebsite}
+                  />
+
+                </div>
+
+
+                {/* WEBSITE URL */}
+
+                <div className="form-group">
+
+                  <label htmlFor="website-url">
+                    Website URL
+                  </label>
+
+                  <input
+                    id="website-url"
+                    type="url"
+                    placeholder="https://example.com"
+                    value={websiteUrl}
+                    onChange={(event) =>
+                      setWebsiteUrl(
+                        event.target.value
+                      )
+                    }
+                    disabled={creatingWebsite}
+                  />
+
+                </div>
+
+
+                {/* DESCRIPTION */}
+
+                <div className="form-group">
+
+                  <label htmlFor="website-description">
+                    Description
+                  </label>
+
+                  <textarea
+                    id="website-description"
+                    placeholder="Optional description"
+                    value={websiteDescription}
+                    onChange={(event) =>
+                      setWebsiteDescription(
+                        event.target.value
+                      )
+                    }
+                    disabled={creatingWebsite}
+                    rows="3"
+                  />
+
+                </div>
+
+
+                {/* ERROR */}
+
+                {websiteError && (
+
+                  <div className="website-form-error">
+
+                    {websiteError}
+
+                  </div>
+
+                )}
+
+
+                {/* ACTIONS */}
+
+                <div className="modal-actions">
+
+                  <button
+                    type="button"
+                    className="secondary-button"
+                    onClick={() => {
+                      setShowAddWebsite(false);
+                      setWebsiteError("");
+                    }}
+                    disabled={creatingWebsite}
+                  >
+                    Cancel
+                  </button>
+
+
+                  <button
+                    type="submit"
+                    className="primary-button"
+                    disabled={creatingWebsite}
+                  >
+
+                    {creatingWebsite
+                      ? "Adding..."
+                      : "Add Website"}
+
+                  </button>
+
+                </div>
+
+              </form>
+
+            </div>
+
+          </div>
+
+        )}
         {/* ====================================================
             WELCOME
         ==================================================== */}
@@ -803,10 +1100,14 @@ function App() {
           </div>
 
 
-          <button className="primary-button">
-
+          <button
+            className="primary-button"
+            onClick={() => {
+              setWebsiteError("");
+              setShowAddWebsite(true);
+            }}
+          >
             + Add Website
-
           </button>
 
         </section>
